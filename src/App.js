@@ -5,7 +5,7 @@ const items = [
     {
         id: 111,
         title: "What is react?",
-        content: "React is a front end JavaScript Framework"
+        content: "React is a front end JavaScript framework"
     },
     {
         id: 222,
