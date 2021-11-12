@@ -4,28 +4,35 @@ import axios from 'axios';
 const Search = () => {
     const [term, setTerm] = useState('wiki')
     const [results, setResults] = useState([])
+    const [debouncedTerm, setDebouncedTerm] = useState(term)
 
-   
-    useEffect(() =>{
-       const searchWiki = async () => {
-           const {data} = await axios.get('https://en.wikipedia.org/w/api.php', {
-               params: {
-                   action: "query",
-                   list: "search",
-                   origin: "*",
-                   format: "json",
-                   srsearch: term
-               },
-           })
+   useEffect(() => {
+        const timerId = setTimeout(() => {
+            setDebouncedTerm(term)
+        }, 1000)
 
-           setResults(data.query.search)
-       }
-       //no api requests made on empty term value
-       if(term){
-        searchWiki()
-       }
+        return () => {
+            clearTimeout(timerId)
+        }
+   }, [term])
 
-    }, [term])
+   useEffect(() => {
+    const searchWiki = async () => {
+        const {data} = await axios.get('https://en.wikipedia.org/w/api.php', {
+            params: {
+                action: "query",
+                list: "search",
+                origin: "*",
+                format: "json",
+                srsearch: debouncedTerm
+            },
+
+        })
+
+        setResults(data.query.search)
+    }
+    if(debouncedTerm) { searchWiki();}
+   }, [debouncedTerm])
 
     const renderedResults = results.map((result) =>{
         return (
@@ -35,6 +42,7 @@ const Search = () => {
                         className="ui button" 
                         href={`https://en.wikipedia.org?curid=${result.pageid}`}
                         target="_blank"
+                        rel="noreferrer" 
                         >
                         Go
                     </a>
